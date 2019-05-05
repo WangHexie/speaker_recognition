@@ -1,19 +1,33 @@
-output test csv:    
-1. model = load_model()   
-2. voice = get_register_voice()
-3. average_register_voice_feature = average(model.fit(voice)) # get_average_voice_vector_of_specific_person
-4. test_voice = get_test_voice()
-5. test_voice_feature = model.fit(test_voice)
-6. result = get_top_5_nearest_voice_to_the_register_voice(average_register_voice_feature, test_voice_feature)
-7. output_result_to_csv(result)
-**************************************
-model test:   
-  * Leave a few directories out and train on the others
-  * pick 3 voice files as the register voice
-  * validate on the left voice
-1. model = load_model()   
-2. voice = get_register_voice()
-3. test = get_test_voice()
-4. get_vector()
-5. distance(Anchor, vector, type)
-6. auc
+## Speaker Recognition -- One-shot Learning
+----------------------------
+#### A few loss functions like triplet loss, l2-softmax loss and siamese loss were realized.What you need to do is to find them out.
+
+1. Train data structure:  
+```
+.
+├── train_dir
+|   └── ID-1
+|       ├─── wav-1
+|       ├─── wav-2
+|       *
+|       *
+|   └── ID-2
+|       ├─── wav-1
+|       ├─── wav-2
+|       *
+|       *
+|   └── *
+|   └── *
+```
+2. Train command:   
+`usage: speaker recognition [-h] [--file_dir FILE_DIR]
+                           [--model_path MODEL_PATH]
+                           [-s OUTPUT_SHAPE OUTPUT_SHAPE]
+                           [--hidden_size HIDDEN_SIZE] [-e EPOCHS_TO_TRAIN]
+                           [-b BATCH_SIZE] [-sr SAMPLE_RATE] [-c CLASS_NUM]
+                           [-pc PROCESS_CLASS] [-mt MODEL_TYPE] [-n NET_DEPTH]
+                           [-fl FEATURE_LENGTH] [-lc LAMBDA_C] [-l2 L2_LAMBDA]
+                           [--continue_training]`
+     
+3. Test:  split some files out, choose model, load type and set other parameters then run model_test.py.
+
