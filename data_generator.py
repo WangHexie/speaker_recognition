@@ -23,6 +23,26 @@ class VoiceSequence(Sequence):
         self.x, self.y = shuffle(self.x, self.y)
 
 
+class CenterLossSequence(Sequence):
+    def __init__(self, x_set, y_set, batch_size, num_class, data_process_func):
+        self.x, self.y = shuffle(x_set, y_set)
+        self.batch_size = batch_size
+        self.data_process_function = data_process_func
+        self.num_of_class = num_class
+        self.length = self.__len__()
+
+    def __len__(self):
+        return int(np.ceil(len(self.x) / float(self.batch_size))) - 1
+
+    def __getitem__(self, idx):
+        batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
+        return [np.array(self.data_process_function(batch_x)), np.array(batch_y).flatten()], [to_categorical(np.array(batch_y), num_classes=self.num_of_class), np.zeros(self.batch_size)]
+
+    def on_epoch_end(self):
+        self.x, self.y = shuffle(self.x, self.y)
+
+
 class SiameseSequence(Sequence):
     def __init__(self, x_set, y_set, batch_size, num_class, data_process_func):
         self.x = [[] for _ in range(len(set(y_set)))]
@@ -35,7 +55,7 @@ class SiameseSequence(Sequence):
         self.iter = 0
 
     def __len__(self):
-        return int(np.ceil(len(self.x) * 2 / float(self.batch_size)-1))
+        return int(np.ceil(len(self.x) * 2 / float(self.batch_size) - 1))
 
     def __getitem__(self, idx):
         left = []

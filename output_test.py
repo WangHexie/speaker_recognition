@@ -3,18 +3,20 @@ import os
 
 import numpy as np
 import pandas as pd
+from math import ceil
 
 from dataset import DataSet
 from feature_transform import distance
 from feature_transform import get_mean_feature_for_device
 from feature_transform import mean_vectors
 from model import load_model
+import keras.backend as K
 
 parser = argparse.ArgumentParser("speaker recognition", fromfile_prefix_chars='@')
 parser.add_argument('--file_dir', type=str, help='Directory of test data.')
 parser.add_argument('--model_path', type=str, help='Directory to load model.')
 parser.add_argument('-sr', '--sample_rate', type=int, default=16000, help='sample rate of wave')
-parser.add_argument('-s', '--output_shape', type=int, nargs=3, default=[384, 32, 3], help='shape')
+parser.add_argument('-s', '--output_shape', type=int, nargs=2, default=[32, 1024], help='shape')
 parser.add_argument('-mt', '--model_type', type=int, default=2,
                     help='type of model.0:res_plus_transformer; 1.simple_cnn; 2.res_net')
 args = parser.parse_args()
@@ -24,7 +26,7 @@ model_path = args.model_path
 sample_rate = args.sample_rate
 output_shape = args.output_shape
 model_type = args.model_type
-process_type = 0
+process_type = 1
 
 def get_group_feature():
     model = load_model(model_path, load_type=model_type)
@@ -78,7 +80,25 @@ def test_output(is_handle_device=False):
             # print(np.array(wav_data).shape)
             cur_device_type_arr.append(wav_data)
         arr = np.array(cur_device_type_arr)
-        model_predict_data = model.predict(arr)
+
+        p = []
+
+        num = 5
+        time = ceil(len(arr) / num)
+        for i in range(time):
+            p.append(arr[num * i: num * (i + 1)])
+
+        K.clear_session()
+        del model
+        model = load_model(model_path, model_type)
+        result = []
+        for i in p:
+            result.append(model.predict(np.array(i)))
+
+        model_predict_data = np.concatenate(tuple(result))
+
+
+        # model_predict_data = model.predict(arr)
         if is_handle_device:
             if group == 1:
                 diff = device_arr[0] - device_arr[1]

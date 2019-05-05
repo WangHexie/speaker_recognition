@@ -87,10 +87,10 @@ def attention_3d_block(inputs, name):
     input_dim = int(inputs.get_shape()[2])
     time_steps = int(inputs.get_shape()[1])
     a = Permute((2, 1))(inputs)
-    a = Reshape((input_dim, time_steps))(a) # this line is not useful. It's just to know which dimension is what.
+    a = Reshape((input_dim, time_steps))(a)  # this line is not useful. It's just to know which dimension is what.
     a = Dense(time_steps, activation='softmax')(a)
-    a_probs = Permute((2, 1), name='attention_vec'+name)(a)
-    output_attention_mul = Multiply(name='attention_mul'+name)([inputs, a_probs])
+    a_probs = Permute((2, 1), name='attention_vec' + name)(a)
+    output_attention_mul = Multiply(name='attention_mul' + name)([inputs, a_probs])
     return output_attention_mul
 
 
@@ -172,7 +172,7 @@ def resnet_1d(inputs, n):
                                     strides=strides,
                                     activation=None,
                                     batch_normalization=False)
-            f = attention_3d_block(y, name="_"+str(stage)+"_"+str(res_block))
+            f = attention_3d_block(y, name="_" + str(stage) + "_" + str(res_block))
             x = keras.layers.add([x, y, f])
 
         num_filters_in = num_filters_out
